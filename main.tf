@@ -121,4 +121,3 @@ resource "aws_cloudwatch_event_target" "default" {
   rule      = aws_cloudwatch_event_rule.default.name
   arn       = aws_lambda_function.default.arn
 }
-

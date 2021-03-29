@@ -6,9 +6,9 @@ Use sample:
 module "jazzed-mailchimp-sync-lambda" {
   source              = "git::ssh://git@gitlab.com/miquido/terraform/terraform-cron-based-api-trigger-lambda"
   name                = "mailchimp-sync"
+  namespace           = var.project
   stage               = var.environment
-  namespace           = var.aws_project_name
-  tags                = var.default_tags
+  tags                = var.tags
 
   schedule_expression = "cron(0 1 1/1 * ? *)"
 
