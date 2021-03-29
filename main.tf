@@ -1,0 +1,124 @@
+data "aws_iam_policy_document" "assume_role" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    effect  = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "default" {
+  statement {
+    actions = [
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+    ]
+
+    effect = "Allow"
+
+    resources = ["arn:aws:logs:*:*:*"]
+  }
+}
+
+module "label" {
+  source     = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=tags/0.4.0"
+  namespace  = var.namespace
+  name       = var.name
+  stage      = var.stage
+  delimiter  = var.delimiter
+  attributes = compact(concat(var.attributes, ["lambda"]))
+  tags       = var.tags
+  enabled    = "true"
+}
+
+locals {
+  function_name       = module.label.id
+  lambda_zip_filename = "${path.module}/lambda.zip"
+}
+
+resource "aws_iam_role" "default" {
+  name               = local.function_name
+  assume_role_policy = data.aws_iam_policy_document.assume_role.json
+  tags               = module.label.tags
+}
+
+resource "aws_iam_role_policy" "default" {
+  name   = local.function_name
+  role   = aws_iam_role.default.name
+  policy = data.aws_iam_policy_document.default.json
+}
+
+data "archive_file" "lambda" {
+  type        = "zip"
+  source_file = "${path.module}/lambda/index.js"
+  output_path = local.lambda_zip_filename
+}
+
+resource "aws_cloudwatch_log_group" "default" {
+  name              = "/aws/lambda/${local.function_name}"
+  tags              = module.label.tags
+  retention_in_days = var.log_retention
+}
+
+resource "aws_lambda_function" "default" {
+  filename         = local.lambda_zip_filename
+  function_name    = local.function_name
+  description      = local.function_name
+  runtime          = "nodejs10.x"
+  role             = aws_iam_role.default.arn
+  handler          = "index.handler"
+  source_code_hash = data.archive_file.lambda.output_base64sha256
+  tags             = module.label.tags
+
+  environment {
+    variables = {
+      auth_hostname     = var.auth_hostname
+      auth_method       = var.auth_method
+      auth_content_type = var.auth_content_type
+      auth_path         = var.auth_path
+      auth_request      = var.auth_request
+      api_hostname      = var.api_hostname
+      api_path          = var.api_path
+      api_method        = var.api_method
+      api_content_type  = var.api_content_type
+      api_request       = var.api_request
+    }
+  }
+
+  depends_on = [
+    aws_cloudwatch_log_group.default,
+    aws_iam_role_policy.default,
+  ]
+}
+
+resource "aws_lambda_alias" "default" {
+  name             = "default"
+  description      = "Use latest version as default"
+  function_name    = aws_lambda_function.default.function_name
+  function_version = "$LATEST"
+}
+
+resource "aws_lambda_permission" "default" {
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.default.arn
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.default.arn
+}
+
+resource "aws_cloudwatch_event_rule" "default" {
+  name                = local.function_name
+  description         = local.function_name
+  tags                = module.label.tags
+  schedule_expression = var.schedule_expression
+}
+
+resource "aws_cloudwatch_event_target" "default" {
+  target_id = local.function_name
+  rule      = aws_cloudwatch_event_rule.default.name
+  arn       = aws_lambda_function.default.arn
+}
+
