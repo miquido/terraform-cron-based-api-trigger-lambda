@@ -24,7 +24,7 @@ data "aws_iam_policy_document" "default" {
 }
 
 module "label" {
-  source     = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=tags/0.5.0"
+  source     = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=tags/0.8.0"
   namespace  = var.namespace
   name       = var.name
   stage      = var.stage
