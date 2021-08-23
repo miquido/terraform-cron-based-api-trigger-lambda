@@ -3,7 +3,19 @@ var qs = require("querystring");
 
 
 exports.handler = (event, context, callback) => {
-  requestForToken(requestWithEvent);
+  switch (process.env.auth_mode) {
+    case "NONE":
+      requestWithEvent(null);
+      break;
+    case "PROVIDED":
+      requestWithEvent(process.env.auth_token);
+      break;
+    case "REQUEST":
+      requestForToken(requestWithEvent);
+      break;
+    default:
+      console.log("Invalid auth_mode. Must be NONE, PROVIDED or REQUEST.");
+  }
 };
 
 function requestForToken(onSuccess) {
@@ -45,10 +57,13 @@ function requestWithEvent(token) {
     "path": process.env.api_path,
     "headers": {
       "content-type": process.env.api_content_type,
-      "authorization": "Bearer " + token,
       "cache-control": "no-cache"
     }
   };
+
+  if (process.env.auth_mode !== "NONE") {
+    options.headers['Authorization'] = 'Bearer ' + token;
+  }
 
   var req = https.request(options, function(res) {
     var chunks = [];
@@ -65,5 +80,4 @@ function requestWithEvent(token) {
 
   req.write(process.env.api_request);
   req.end();
-
 }

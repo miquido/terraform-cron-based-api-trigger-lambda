@@ -8,7 +8,7 @@ You can define an endpoint and credentials for which a given request will be mad
 ---
 **Terraform Module**
 ## Usage
-
+With auth request to obtain token before each call:
 ```hcl
   module "jazzed-mailchimp-sync-lambda" {
     source              = "git::ssh://git@gitlab.com/miquido/terraform/terraform-cron-based-api-trigger-lambda"
@@ -19,11 +19,53 @@ You can define an endpoint and credentials for which a given request will be mad
 
     schedule_expression = "cron(0 1 1/1 * ? *)"
 
+    auth_mode           = "REQUEST"
     auth_hostname       = local.auth_domain
     auth_path           = "/auth/realms/jazzed/protocol/openid-connect/token"
     auth_method         = "POST"
     auth_content_type   = "application/x-www-form-urlencoded"
     auth_request        = "client_id=${var.mailchimp_client_id}&grant_type=client_credentials&client_secret=${var.mailchimp_client_secret}"
+
+    api_hostname        = local.api_domain
+    api_path            = "/api/graphql"
+    api_method          = "POST"
+    api_content_type    = "application/graphql"
+    api_request         = "mutation test { mailchimp { synchronise } }"
+  }
+```
+With auth token provided to be used with each call:
+```hcl
+  module "jazzed-mailchimp-sync-lambda" {
+    source              = "git::ssh://git@gitlab.com/miquido/terraform/terraform-cron-based-api-trigger-lambda"
+    name                = "mailchimp-sync"
+    stage               = var.environment
+    namespace           = var.aws_project_name
+    tags                = var.default_tags
+
+    schedule_expression = "cron(0 1 1/1 * ? *)"
+
+    auth_mode           = "PROVIDED"
+    auth_token          = "[TOKEN]"
+
+    api_hostname        = local.api_domain
+    api_path            = "/api/graphql"
+    api_method          = "POST"
+    api_content_type    = "application/graphql"
+    api_request         = "mutation test { mailchimp { synchronise } }"
+  }
+```
+With no authorization:
+```hcl
+  module "jazzed-mailchimp-sync-lambda" {
+    source              = "git::ssh://git@gitlab.com/miquido/terraform/terraform-cron-based-api-trigger-lambda"
+    name                = "mailchimp-sync"
+    stage               = var.environment
+    namespace           = var.aws_project_name
+    tags                = var.default_tags
+
+    schedule_expression = "cron(0 1 1/1 * ? *)"
+
+    auth_mode           = "NONE"
 
     api_hostname        = local.api_domain
     api_path            = "/api/graphql"
@@ -90,11 +132,13 @@ Available targets:
 | <a name="input_api_path"></a> [api\_path](#input\_api\_path) | Value of Lambda ENV variable `api_path` | `string` | n/a | yes |
 | <a name="input_api_request"></a> [api\_request](#input\_api\_request) | Value of Lambda ENV variable `api_request` | `string` | n/a | yes |
 | <a name="input_attributes"></a> [attributes](#input\_attributes) | Additional attributes (e.g. `1`) | `list(string)` | `[]` | no |
-| <a name="input_auth_content_type"></a> [auth\_content\_type](#input\_auth\_content\_type) | Value of Lambda ENV variable `auth_content_type` | `string` | n/a | yes |
-| <a name="input_auth_hostname"></a> [auth\_hostname](#input\_auth\_hostname) | Value of Lambda ENV variable `auth_hostname` | `string` | n/a | yes |
-| <a name="input_auth_method"></a> [auth\_method](#input\_auth\_method) | Value of Lambda ENV variable `auth_method` | `string` | n/a | yes |
-| <a name="input_auth_path"></a> [auth\_path](#input\_auth\_path) | Value of Lambda ENV variable `auth_path` | `string` | n/a | yes |
-| <a name="input_auth_request"></a> [auth\_request](#input\_auth\_request) | Value of Lambda ENV variable `auth_request` | `string` | n/a | yes |
+| <a name="input_auth_mode"></a> [auth\_mode](#input\_auth\_mode) | Method of populating Authorization header. One of NONE, PROVIDED (uses auth_token), REQUEST (uses remaining auth_* envs). | `string` | n/a | yes |
+| <a name="input_auth_token"></a> [auth\_token](#input\_auth\_token) | Authorization token to be used with PROVIDED auth_mode. | `string` | n/a | no |
+| <a name="input_auth_content_type"></a> [auth\_content\_type](#input\_auth\_content\_type) | Value of Lambda ENV variable `auth_content_type` | `string` | n/a | no |
+| <a name="input_auth_hostname"></a> [auth\_hostname](#input\_auth\_hostname) | Value of Lambda ENV variable `auth_hostname` | `string` | n/a | no |
+| <a name="input_auth_method"></a> [auth\_method](#input\_auth\_method) | Value of Lambda ENV variable `auth_method` | `string` | n/a | no |
+| <a name="input_auth_path"></a> [auth\_path](#input\_auth\_path) | Value of Lambda ENV variable `auth_path` | `string` | n/a | no |
+| <a name="input_auth_request"></a> [auth\_request](#input\_auth\_request) | Value of Lambda ENV variable `auth_request` | `string` | n/a | no |
 | <a name="input_delimiter"></a> [delimiter](#input\_delimiter) | Delimiter to be used between `namespace`, `stage`, `name` and `attributes` | `string` | `"-"` | no |
 | <a name="input_log_retention"></a> [log\_retention](#input\_log\_retention) | Specifies the number of days you want to retain log events in the specified log group. | `string` | `"7"` | no |
 | <a name="input_name"></a> [name](#input\_name) | Solution name, e.g. 'app' or 'cluster' | `string` | `"app"` | no |

@@ -10,6 +10,7 @@ module "test" {
 
   schedule_expression = "cron(0 1 1/1 * ? *)"
 
+  auth_mode         = "REQUEST"
   auth_hostname     = "auth.example.com"
   auth_path         = "/auth/realms/jazzed/protocol/openid-connect/token"
   auth_method       = "POST"

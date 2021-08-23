@@ -42,28 +42,44 @@ variable "schedule_expression" {
   description = "The scheduling expression. For example, cron(0 20 * * ? *) or rate(5 minutes)."
 }
 
+variable "auth_mode" {
+  type        = string
+  description = "Method of populating Authorization header. One of NONE, PROVIDED (uses auth_token), REQUEST (uses remaining auth_* envs)."
+}
+
+variable "auth_token" {
+  type        = string
+  default     = ""
+  description = "Authorization token to be used with PROVIDED auth_mode."
+}
+
 variable "auth_hostname" {
   type        = string
+  default     = ""
   description = "Value of Lambda ENV variable `auth_hostname`"
 }
 
 variable "auth_method" {
   type        = string
+  default     = "POST"
   description = "Value of Lambda ENV variable `auth_method`"
 }
 
 variable "auth_content_type" {
   type        = string
+  default     = "application/x-www-form-urlencoded"
   description = "Value of Lambda ENV variable `auth_content_type`"
 }
 
 variable "auth_path" {
   type        = string
+  default     = ""
   description = "Value of Lambda ENV variable `auth_path`"
 }
 
 variable "auth_request" {
   type        = string
+  default     = ""
   description = "Value of Lambda ENV variable `auth_request`"
 }
 
