@@ -133,7 +133,7 @@ Available targets:
 | <a name="input_api_request"></a> [api\_request](#input\_api\_request) | Value of Lambda ENV variable `api_request` | `string` | n/a | yes |
 | <a name="input_attributes"></a> [attributes](#input\_attributes) | Additional attributes (e.g. `1`) | `list(string)` | `[]` | no |
 | <a name="input_auth_mode"></a> [auth\_mode](#input\_auth\_mode) | Method of populating Authorization header. One of NONE, PROVIDED (uses auth_token), REQUEST (uses remaining auth_* envs). | `string` | n/a | yes |
-| <a name="input_auth_token"></a> [auth\_token](#input\_auth\_token) | Authorization token to be used with PROVIDED auth_mode. | `string` | n/a | no |
+| <a name="input_auth_token"></a> [auth\_token](#input\_auth\_token) | Authorization token to be used with PROVIDED auth_mode. It's required to provide token type together with value e.g `Basic ZnJlZDpmcmVk`. | `string` | n/a | no |
 | <a name="input_auth_content_type"></a> [auth\_content\_type](#input\_auth\_content\_type) | Value of Lambda ENV variable `auth_content_type` | `string` | n/a | no |
 | <a name="input_auth_hostname"></a> [auth\_hostname](#input\_auth\_hostname) | Value of Lambda ENV variable `auth_hostname` | `string` | n/a | no |
 | <a name="input_auth_method"></a> [auth\_method](#input\_auth\_method) | Value of Lambda ENV variable `auth_method` | `string` | n/a | no |

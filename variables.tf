@@ -50,7 +50,7 @@ variable "auth_mode" {
 variable "auth_token" {
   type        = string
   default     = ""
-  description = "Authorization token to be used with PROVIDED auth_mode."
+  description = "Authorization token to be used with PROVIDED auth_mode. It's required to provide token type together with value e.g `Basic ZnJlZDpmcmVk`."
 }
 
 variable "auth_hostname" {

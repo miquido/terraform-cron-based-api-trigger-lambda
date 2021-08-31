@@ -62,7 +62,7 @@ function requestWithEvent(token) {
   };
 
   if (process.env.auth_mode !== "NONE") {
-    options.headers['Authorization'] = 'Bearer ' + token;
+    options.headers['Authorization'] = token;
   }
 
   var req = https.request(options, function(res) {
