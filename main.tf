@@ -81,6 +81,7 @@ resource "aws_lambda_function" "default" {
       auth_path         = var.auth_path
       auth_request      = var.auth_request
       auth_mode         = var.auth_mode
+      auth_token        = var.auth_token
       api_hostname      = var.api_hostname
       api_path          = var.api_path
       api_method        = var.api_method
