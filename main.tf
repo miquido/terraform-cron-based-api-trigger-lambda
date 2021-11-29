@@ -23,6 +23,10 @@ data "aws_iam_policy_document" "default" {
   }
 }
 
+data "aws_iam_policy" "AWSLambdaVPCAccessExecutionRole" {
+  arn = "arn:aws:iam::aws:policy/AWSLambdaVPCAccessExecutionRole"
+}
+
 module "label" {
   source     = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=tags/0.8.0"
   namespace  = var.namespace
@@ -51,6 +55,12 @@ resource "aws_iam_role_policy" "default" {
   policy = data.aws_iam_policy_document.default.json
 }
 
+resource "aws_iam_role_policy_attachment" "vpc-execution-role-policy-attach" {
+  count      = var.vpc_mode_enable == true ? 1 : 0
+  role       = aws_iam_role.default.name
+  policy_arn = data.aws_iam_policy.AWSLambdaVPCAccessExecutionRole.arn
+}
+
 data "archive_file" "lambda" {
   type        = "zip"
   source_file = "${path.module}/lambda/index.js"
@@ -72,6 +82,14 @@ resource "aws_lambda_function" "default" {
   handler          = "index.handler"
   source_code_hash = data.archive_file.lambda.output_base64sha256
   tags             = module.label.tags
+
+  dynamic "vpc_config" {
+    for_each = var.vpc_mode_enable == true ? [var.vpc_config] : []
+    content {
+      subnet_ids         = setting.value["subnet_ids"]
+      security_group_ids = setting.value["security_group_ids"]
+    }
+  }
 
   environment {
     variables = {

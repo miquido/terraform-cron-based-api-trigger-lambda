@@ -107,3 +107,21 @@ variable "api_request" {
   type        = string
   description = "Value of Lambda ENV variable `api_request`"
 }
+
+variable "vpc_mode_enable" {
+  type        = bool
+  description = "Set to true to enable usage of lambda in VPC"
+  default     = false
+}
+
+variable "vpc_config" {
+  type = object({
+    security_group_ids = list(string)
+    subnet_ids         = list(string)
+  })
+  default = {
+    security_group_ids = []
+    subnet_ids         = []
+  }
+  description = "Specify a list of security groups and subnets in the VPC to use in lambda configuration"
+}

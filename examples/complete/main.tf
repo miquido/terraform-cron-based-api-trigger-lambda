@@ -22,4 +22,10 @@ module "test" {
   api_method       = "POST"
   api_content_type = "application/graphql"
   api_request      = "mutation test { mailchimp { synchronise } }"
+
+  vpc_mode_enable = true
+  vpc_config = {
+    security_group_ids = ["first-id", "second-id"]
+    subnet_ids         = ["first-subnet", "second-subnet"]
+  }
 }
