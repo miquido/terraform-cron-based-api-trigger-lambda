@@ -24,7 +24,7 @@ data "aws_iam_policy_document" "default" {
 }
 
 data "aws_iam_policy" "AWSLambdaVPCAccessExecutionRole" {
-  arn = "arn:aws:iam::aws:policy/AWSLambdaVPCAccessExecutionRole"
+  arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
 
 module "label" {
@@ -86,8 +86,8 @@ resource "aws_lambda_function" "default" {
   dynamic "vpc_config" {
     for_each = var.vpc_mode_enable == true ? [var.vpc_config] : []
     content {
-      subnet_ids         = setting.value["subnet_ids"]
-      security_group_ids = setting.value["security_group_ids"]
+      subnet_ids         = vpc_config.value["subnet_ids"]
+      security_group_ids = vpc_config.value["security_group_ids"]
     }
   }
 
