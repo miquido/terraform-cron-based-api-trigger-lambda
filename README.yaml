@@ -1,5 +1,6 @@
 name: terraform-cron-based-api-trigger-lambda
-gitlab_repo: miquido/terraform/terraform-cron-based-api-trigger-lambda
+repos:
+  gitlab: miquido/terraform/terraform-cron-based-api-trigger-lambda
 badges: []
 related: []
 description: |-

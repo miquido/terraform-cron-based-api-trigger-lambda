@@ -7,6 +7,10 @@
 You can define an endpoint and credentials for which a given request will be made with a cron schedule.
 ---
 **Terraform Module**
+
+
+GitLab Repository: https://gitlab.com/miquido/terraform/terraform-cron-based-api-trigger-lambda
+
 ## Usage
 
 With auth request to obtain token before each call:
@@ -105,7 +109,7 @@ Available targets:
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_label"></a> [label](#module\_label) | git::https://github.com/cloudposse/terraform-terraform-label.git | tags/0.8.0 |
+| <a name="module_label"></a> [label](#module\_label) | git::https://github.com/cloudposse/terraform-terraform-label.git | 0.8.0 |
 
 ## Resources
 
