@@ -33,11 +33,13 @@ variable "tags" {
 }
 
 variable "log_retention" {
-  default     = "7"
+  type        = number
+  default     = 7
   description = "Specifies the number of days you want to retain log events in the specified log group."
 }
 
 variable "schedule_expression" {
+  type        = string
   default     = "cron(0 1 1/1 * ? *)"
   description = "The scheduling expression. For example, cron(0 20 * * ? *) or rate(5 minutes)."
 }
