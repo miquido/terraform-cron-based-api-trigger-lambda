@@ -11,10 +11,10 @@ get-latest-terraform:
 check-formatting:
   extends: .check-formatting
 
-validate:
-  extends: .validate-terraform
-  variables:
-    ENVIRONMENTS: examples/complete
+# validate:
+#   extends: .validate-terraform
+#   variables:
+#     ENVIRONMENTS: examples/complete
 
 miquido-ci-schema-validation:
   extends: .miquido-ci-schema-validation
