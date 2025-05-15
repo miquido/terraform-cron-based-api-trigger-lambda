@@ -127,3 +127,15 @@ variable "vpc_config" {
   }
   description = "Specify a list of security groups and subnets in the VPC to use in lambda configuration"
 }
+
+variable "cloudmap_namespace" {
+  type        = string
+  default     = null
+  description = "Namespace of cloudmap for private DNS service discovery"
+}
+
+variable "use_cloudmap" {
+  type        = bool
+  default     = false
+  description = "Set to true if cloudmap service discovery is enabled in the VPC for private communication"
+}

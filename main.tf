@@ -21,6 +21,15 @@ data "aws_iam_policy_document" "default" {
 
     resources = ["arn:aws:logs:*:*:*"]
   }
+  statement {
+    actions = [
+      "servicediscovery:DiscoverInstances",
+    ]
+
+    effect = "Allow"
+
+    resources = ["*"]
+  }
 }
 
 data "aws_iam_policy" "AWSLambdaVPCAccessExecutionRole" {
@@ -93,18 +102,20 @@ resource "aws_lambda_function" "default" {
 
   environment {
     variables = {
-      auth_hostname     = var.auth_hostname
-      auth_method       = var.auth_method
-      auth_content_type = var.auth_content_type
-      auth_path         = var.auth_path
-      auth_request      = var.auth_request
-      auth_mode         = var.auth_mode
-      auth_token        = var.auth_token
-      api_hostname      = var.api_hostname
-      api_path          = var.api_path
-      api_method        = var.api_method
-      api_content_type  = var.api_content_type
-      api_request       = var.api_request
+      auth_hostname      = var.auth_hostname
+      auth_method        = var.auth_method
+      auth_content_type  = var.auth_content_type
+      auth_path          = var.auth_path
+      auth_request       = var.auth_request
+      auth_mode          = var.auth_mode
+      auth_token         = var.auth_token
+      api_hostname       = var.api_hostname
+      api_path           = var.api_path
+      api_method         = var.api_method
+      api_content_type   = var.api_content_type
+      api_request        = var.api_request
+      cloudmap_namespace = var.cloudmap_namespace
+      use_cloudmap       = var.use_cloudmap
     }
   }
 

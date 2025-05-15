@@ -1,6 +1,7 @@
-var https = require("https");
 var qs = require("querystring");
 
+const { ServiceDiscoveryClient, DiscoverInstancesCommand } = require("@aws-sdk/client-servicediscovery");
+const client = new ServiceDiscoveryClient();
 
 exports.handler = (event, context, callback) => {
   switch (process.env.auth_mode) {
@@ -49,11 +50,22 @@ function requestForToken(onSuccess) {
   req.end();
 }
 
-function requestWithEvent(token) {
+async function requestWithEvent(token) {
+  var port = null
+  var hostname = process.env.api_hostname
+  var http = require("https");
+  
+  if (process.env.use_cloudmap === "true") {
+    response = await getHostFromCloudmap();
+    hostname = response.host
+    port = response.port
+    http = require("http");
+  }
+
   var options = {
     "method": process.env.api_method,
-    "hostname": process.env.api_hostname,
-    "port": null,
+    "hostname": hostname,
+    "port": port,
     "path": process.env.api_path,
     "headers": {
       "content-type": process.env.api_content_type,
@@ -65,7 +77,7 @@ function requestWithEvent(token) {
     options.headers['Authorization'] = token;
   }
 
-  var req = https.request(options, function(res) {
+  var req = http.request(options, function(res) {
     var chunks = [];
 
     res.on("data", function(chunk) {
@@ -81,3 +93,22 @@ function requestWithEvent(token) {
   req.write(process.env.api_request);
   req.end();
 }
+
+async function getHostFromCloudmap() {
+  const input = {
+    NamespaceName: process.env.cloudmap_namespace,
+    ServiceName: process.env.api_hostname,
+  };
+  const command = new DiscoverInstancesCommand(input);
+  const response = await client.send(command);
+
+  var attributes = response["Instances"][0]["Attributes"];
+  host = attributes["AWS_INSTANCE_IPV4"];
+  port = attributes["AWS_INSTANCE_PORT"];
+
+  return {
+    "port": port,
+    "host": host,
+  }
+}
+
