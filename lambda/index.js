@@ -80,6 +80,10 @@ async function requestWithEvent(token) {
   var req = http.request(options, function(res) {
     var chunks = [];
 
+    if (res.statusCode < 200 || res.statusCode >= 300) {
+      throw new Error("Request failed with status code: " + res.statusCode);
+    }
+
     res.on("data", function(chunk) {
       chunks.push(chunk);
     });
