@@ -1,9 +1,9 @@
 ---
 include:
-  - remote: "https://raw.githubusercontent.com/miquido/gitlab-templates/1.3.92/workflow-default.yml"
-  - remote: "https://raw.githubusercontent.com/miquido/gitlab-templates/1.3.92/terraform-toolkit.yml"
-  - remote: "https://raw.githubusercontent.com/miquido/gitlab-templates/1.3.92/git-toolkit.yml"
-  - remote: "https://raw.githubusercontent.com/miquido/gitlab-templates/1.3.92/gitlab-toolkit.yml"
+  - remote: "https://raw.githubusercontent.com/miquido/gitlab-templates/1.3.102/workflow-default.yml"
+  - remote: "https://raw.githubusercontent.com/miquido/gitlab-templates/1.3.102/terraform-toolkit.yml"
+  - remote: "https://raw.githubusercontent.com/miquido/gitlab-templates/1.3.102/git-toolkit.yml"
+  - remote: "https://raw.githubusercontent.com/miquido/gitlab-templates/1.3.102/gitlab-toolkit.yml"
 
 get-latest-terraform:
   extends: .get-latest-terraform
@@ -21,3 +21,25 @@ miquido-ci-schema-validation:
 
 bump-tag:
   extends: .bump_minor_tag
+
+.push_readme:
+  stage: .post
+  image: frolvlad/alpine-bash
+  script:
+    - apk add git
+    - TXT_RED="\e[31m"
+    - |
+      if [ "$GITLAB_TOKEN" = "<ENTER_VAR>" ]; then
+        echo -e "${TXT_RED}Fatal: Missing GITLAB_TOKEN. \
+      Please setup GITLAB_TOKEN variable with token with write_repository rights"
+        exit 1
+      fi
+    - git remote add $CI_COMMIT_SHORT_SHA-$CI_PIPELINE_ID https://token:$GITLAB_TOKEN@gitlab.miquido.com/$CI_PROJECT_PATH.git
+    - git config --global user.name "bot"
+    - git config --global user.email "bot@miquido.com"
+    - git add .
+    - |
+      git commit -m "chore: readme" || true
+      git push $CI_COMMIT_SHORT_SHA-$CI_PIPELINE_ID HEAD:$CI_COMMIT_BRANCH
+  after_script:
+    - git remote rm $CI_COMMIT_SHORT_SHA-$CI_PIPELINE_ID &> /dev/null || true;
