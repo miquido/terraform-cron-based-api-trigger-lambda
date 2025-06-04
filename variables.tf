@@ -139,3 +139,9 @@ variable "use_cloudmap" {
   default     = false
   description = "Set to true if cloudmap service discovery is enabled in the VPC for private communication"
 }
+
+variable "timeout" {
+  type        = number
+  default     = 3
+  description = "Timeout for lambda"
+}

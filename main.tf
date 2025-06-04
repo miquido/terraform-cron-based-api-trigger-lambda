@@ -91,6 +91,7 @@ resource "aws_lambda_function" "default" {
   handler          = "index.handler"
   source_code_hash = data.archive_file.lambda.output_base64sha256
   tags             = module.label.tags
+  timeout          = var.timeout
 
   dynamic "vpc_config" {
     for_each = var.vpc_mode_enable == true ? [var.vpc_config] : []
