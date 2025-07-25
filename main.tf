@@ -86,7 +86,7 @@ resource "aws_lambda_function" "default" {
   filename         = local.lambda_zip_filename
   function_name    = local.function_name
   description      = local.function_name
-  runtime          = "nodejs20.x"
+  runtime          = "nodejs22.x"
   role             = aws_iam_role.default.arn
   handler          = "index.handler"
   source_code_hash = data.archive_file.lambda.output_base64sha256
