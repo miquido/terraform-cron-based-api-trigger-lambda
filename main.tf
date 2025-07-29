@@ -1,10 +1,13 @@
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
+
 data "aws_iam_policy_document" "assume_role" {
   statement {
     actions = ["sts:AssumeRole"]
-    effect  = "Allow"
+    effect = "Allow"
 
     principals {
-      type        = "Service"
+      type = "Service"
       identifiers = ["lambda.amazonaws.com"]
     }
   }
@@ -30,6 +33,18 @@ data "aws_iam_policy_document" "default" {
 
     resources = ["*"]
   }
+  dynamic "statement" {
+    for_each = var.response_handler_lambda != "" ? [var.response_handler_lambda] : []
+    content {
+      actions = [
+        "lambda:InvokeFunction",
+      ]
+      effect = "Allow"
+      resources = [
+        "arn:aws:lambda:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:function:${var.response_handler_lambda}"
+      ]
+    }
+  }
 }
 
 data "aws_iam_policy" "AWSLambdaVPCAccessExecutionRole" {
@@ -37,14 +52,14 @@ data "aws_iam_policy" "AWSLambdaVPCAccessExecutionRole" {
 }
 
 module "label" {
-  source     = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=0.8.0"
-  namespace  = var.namespace
-  name       = var.name
-  stage      = var.stage
-  delimiter  = var.delimiter
+  source    = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=0.8.0"
+  namespace = var.namespace
+  name      = var.name
+  stage     = var.stage
+  delimiter = var.delimiter
   attributes = compact(concat(var.attributes, ["lambda"]))
-  tags       = var.tags
-  enabled    = "true"
+  tags      = var.tags
+  enabled   = "true"
 }
 
 locals {
@@ -103,20 +118,21 @@ resource "aws_lambda_function" "default" {
 
   environment {
     variables = {
-      auth_hostname      = var.auth_hostname
-      auth_method        = var.auth_method
-      auth_content_type  = var.auth_content_type
-      auth_path          = var.auth_path
-      auth_request       = var.auth_request
-      auth_mode          = var.auth_mode
-      auth_token         = var.auth_token
-      api_hostname       = var.api_hostname
-      api_path           = var.api_path
-      api_method         = var.api_method
-      api_content_type   = var.api_content_type
-      api_request        = var.api_request
-      cloudmap_namespace = var.cloudmap_namespace
-      use_cloudmap       = var.use_cloudmap
+      auth_hostname           = var.auth_hostname
+      auth_method             = var.auth_method
+      auth_content_type       = var.auth_content_type
+      auth_path               = var.auth_path
+      auth_request            = var.auth_request
+      auth_mode               = var.auth_mode
+      auth_token              = var.auth_token
+      api_hostname            = var.api_hostname
+      api_path                = var.api_path
+      api_method              = var.api_method
+      api_content_type        = var.api_content_type
+      api_request             = var.api_request
+      cloudmap_namespace      = var.cloudmap_namespace
+      use_cloudmap            = var.use_cloudmap
+      response_handler_lambda = var.response_handler_lambda
     }
   }
 

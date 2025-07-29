@@ -54,7 +54,7 @@ async function requestWithEvent(token) {
   var port = null
   var hostname = process.env.api_hostname
   var http = require("https");
-  
+
   if (process.env.use_cloudmap === "true") {
     response = await getHostFromCloudmap();
     hostname = response.host
@@ -80,10 +80,6 @@ async function requestWithEvent(token) {
   var req = http.request(options, function(res) {
     var chunks = [];
 
-    if (res.statusCode < 200 || res.statusCode >= 300) {
-      throw new Error("Request failed with status code: " + res.statusCode);
-    }
-
     res.on("data", function(chunk) {
       chunks.push(chunk);
     });
@@ -91,7 +87,31 @@ async function requestWithEvent(token) {
     res.on("end", function() {
       var body = Buffer.concat(chunks);
       console.log("API response: " + body.toString());
+      console.log(process.env.response_handler_lambda);
+      if (process.env.response_handler_lambda != null) {
+        console.log("go");
+        const { Lambda } = require("@aws-sdk/client-lambda");
+        const lambda = new Lambda();
+        const payload = JSON.stringify({
+          statusCode: res.statusCode,
+          body: body.toString()
+        });
+        lambda.invoke({
+          FunctionName: process.env.response_handler_lambda,
+          Payload: payload
+        }, function (err, data) {
+          if (err) {
+            console.log("Error invoking response handler lambda:", err);
+          } else {
+            console.log("Response handler lambda invoked:", data);
+          }
+        });
+      }
     });
+    if (process.env.response_handler_lambda == null && (res.statusCode < 200 || res.statusCode >= 300)) {
+      throw new Error("Request failed with status code: " + res.statusCode);
+    }
+
   });
 
   req.write(process.env.api_request);

@@ -145,3 +145,8 @@ variable "timeout" {
   default     = 3
   description = "Timeout for lambda"
 }
+
+variable "response_handler_lambda" {
+  type = string
+  default = null
+}
