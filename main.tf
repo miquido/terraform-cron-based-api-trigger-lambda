@@ -34,7 +34,7 @@ data "aws_iam_policy_document" "default" {
     resources = ["*"]
   }
   dynamic "statement" {
-    for_each = var.response_handler_lambda != "" ? [var.response_handler_lambda] : []
+    for_each = var.response_handler_lambda != null ? [var.response_handler_lambda] : []
     content {
       actions = [
         "lambda:InvokeFunction",
