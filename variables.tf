@@ -147,6 +147,6 @@ variable "timeout" {
 }
 
 variable "response_handler_lambda" {
-  type = string
+  type    = string
   default = null
 }

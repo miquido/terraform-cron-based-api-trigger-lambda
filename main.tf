@@ -4,10 +4,10 @@ data "aws_region" "current" {}
 data "aws_iam_policy_document" "assume_role" {
   statement {
     actions = ["sts:AssumeRole"]
-    effect = "Allow"
+    effect  = "Allow"
 
     principals {
-      type = "Service"
+      type        = "Service"
       identifiers = ["lambda.amazonaws.com"]
     }
   }
@@ -52,14 +52,14 @@ data "aws_iam_policy" "AWSLambdaVPCAccessExecutionRole" {
 }
 
 module "label" {
-  source    = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=0.8.0"
-  namespace = var.namespace
-  name      = var.name
-  stage     = var.stage
-  delimiter = var.delimiter
+  source     = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=0.8.0"
+  namespace  = var.namespace
+  name       = var.name
+  stage      = var.stage
+  delimiter  = var.delimiter
   attributes = compact(concat(var.attributes, ["lambda"]))
-  tags      = var.tags
-  enabled   = "true"
+  tags       = var.tags
+  enabled    = "true"
 }
 
 locals {
